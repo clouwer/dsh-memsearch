@@ -1,77 +1,79 @@
-# dsh-memsearch — DSH 自动语义记忆插件
+# dsh-memsearch — Automatic semantic memory for DeepSeek Harness
 
 [![npm version](https://img.shields.io/npm/v/dsh-memsearch.svg)](https://www.npmjs.com/package/dsh-memsearch)
 [![GitHub](https://img.shields.io/badge/GitHub-clouwer%2Fdsh--memsearch-blue?logo=github)](https://github.com/clouwer/dsh-memsearch)
 
-[简体中文](README.md) | [English](README.en.md)
+[English](README.md) | [简体中文](README_CN.md)
 
-让 DeepSeek Harness（DSH）像 Codex / Claude Code 的 memsearch 插件一样，**默认自动
-写入和提取** mmsearch 记忆。纯本地，默认不调用任何 LLM（离线可用）。
+Make DeepSeek Harness (DSH) **auto-write and recall mmsearch memories by default**, just
+like the official Codex / Claude Code memsearch plugins. Fully local — no LLM calls
+required by default (offline-ready).
 
-## 行为（对齐官方插件）
+## Behavior (mirrors the official plugins)
 
-| 时机 | 行为 |
+| When | What happens |
 |---|---|
-| 会话开始（首个 step） | 后台跑一次 `memsearch index`；向会话注入一条插件来源的状态消息：memsearch 版本、embedding provider、记忆日志目录、历史记忆文件数 + 提示（需要用历史时用 memory-recall skill 检索） |
-| 每轮结束（`turn/end`） | 自动捕获本轮用户问题 + agent 最终回复，以紧凑格式追加到 `<memoryDir>/<YYYY-MM-DD>.md`，随后后台增量 `memsearch index`（去重：同一轮不会写两次） |
-| 检索 | 沿用官方设计：不自动塞上下文，由 agent 按需通过 memsearch 官方的 memory-recall skill 主动检索 |
+| Session start (first step) | Runs a background `memsearch index`; injects a plugin-sourced status message: memsearch version, embedding provider, journal dir, past-memory file count + a hint to use the memory-recall skill when history may help |
+| Turn end (`turn/end`) | Auto-captures the user question + the agent's final reply, appends a compact entry to `<memoryDir>/<YYYY-MM-DD>.md`, then runs an incremental `memsearch index` in the background (deduped: the same turn is never written twice) |
+| Recall | Follows the official design: no automatic context stuffing — the agent searches on demand via the memsearch memory-recall skill |
 
-## 记忆日志格式
+## Memory journal format
 
 ```
 ### HH:MM
 === Final exchange, authoritative for outcome ===
-[User]: <本轮用户问题>
-[DSH]: <agent 最终回复>
+[User]: <user question>
+[DSH]: <agent final reply>
 ```
 
-> DSH 是常驻 web 应用、没有 Codex 那种会话结束 hook，所以用"每轮结束"作为捕获时机。
-> 若配置了 memsearch 的 `[llm]` provider，可让 `summarizePlugin` 用 LLM 摘要替代原始文本。
+> DSH is an always-on web app without a Codex-style session-end hook, so capture happens
+> per turn. If a memsearch `[llm]` provider is configured, `summarizePlugin` can replace
+> the raw text with an LLM summary.
 
-## 配置项（cordis.patch.yml 中 `config:` 下）
+## Configuration (under `config:` in cordis.patch.yml)
 
-| 键 | 默认 | 说明 |
+| Key | Default | Description |
 |---|---|---|
-| `enabled` | `true` | 总开关 |
-| `memoryDir` | `""` | 日志目录；空 = `$MEMSEARCH_DIR/memory` 或 `~/.memsearch/memory` |
-| `collection` | `""` | 传给 CLI 的 Milvus collection；空 = 配置默认 |
-| `injectSessionStatus` | `true` | 会话开始注入状态+提示 |
-| `capture` | `true` | 每轮结束自动写入 |
-| `captureMinPromptLength` | `10` | 用户提示短于该长度不捕获（问候语等） |
-| `maxCaptureChars` | `8000` | 单轮原始文本上限 |
-| `summarizePlugin` | `""` | 如 `"codex"` 则用 `memsearch summarize` 摘要（需要 `[llm]` 配置）；空 = 原始文本 |
-| `indexAfterCapture` | `true` | 写入后重索引 |
+| `enabled` | `true` | Master switch |
+| `memoryDir` | `""` | Journal dir; empty = `$MEMSEARCH_DIR/memory` or `~/.memsearch/memory` |
+| `collection` | `""` | Milvus collection passed to the CLI; empty = configured default |
+| `injectSessionStatus` | `true` | Inject session-start status + recall hint |
+| `capture` | `true` | Auto-append a journal entry after each turn |
+| `captureMinPromptLength` | `10` | Skip turns whose user prompt is shorter than this (greetings etc.) |
+| `maxCaptureChars` | `8000` | Cap on the raw exchange text written per turn |
+| `summarizePlugin` | `""` | e.g. `"codex"` to summarize via `memsearch summarize` (needs `[llm]` config); empty = raw text |
+| `indexAfterCapture` | `true` | Re-index after appending |
 
-## 安装
+## Installation
 
 ```bash
-# 1. 安装插件（npm registry 或 GitHub 二选一）
+# 1. Install the plugin (npm registry or GitHub — pick one)
 dsh plugin --profile web add dsh-memsearch
-# 或从 GitHub 源码安装：
+# or install from GitHub source:
 # dsh plugin --profile web add "git+https://github.com/clouwer/dsh-memsearch.git"
 
-# 2. 在 ~/.dsh/profiles/web/cordis.patch.yml 追加
+# 2. Append to ~/.dsh/profiles/web/cordis.patch.yml
 # - id: memsearch-automemory
 #   name: 'dsh-memsearch'
 #   config:
 #     enabled: true
 
-# 3. 重启 dsh web（配置启动时合成）
+# 3. Restart dsh web (config is composed at startup)
 ```
 
-> 依赖说明：插件通过 peerDependencies 使用宿主 DSH 自带的 `@deepseek-ai/cordis` /
-> `@deepseek-ai/dsh-agent`，无需单独安装。
+> Dependencies: the plugin consumes the host DSH's own `@deepseek-ai/cordis` /
+> `@deepseek-ai/dsh-agent` via peerDependencies — nothing extra to install.
 
-## 验证
+## Verification
 
 ```bash
-# 单元测试（mock 会话，不依赖 DSH）
+# Unit tests (mocked session, no DSH needed)
 npm test
 
-# 重启 DSH 后：随便聊一轮，然后看当日日志
+# After restarting DSH: chat a turn, then check today's journal
 tail -20 ~/.memsearch/memory/$(date +%Y-%m-%d).md
-memsearch stats          # chunk 数应随对话增长
+memsearch stats          # chunk count should grow with conversations
 ```
 
-> 记忆日志默认在 `~/.memsearch/memory/`；设置了 `MEMSEARCH_DIR` 时在
-> `$MEMSEARCH_DIR/memory/`。
+> The memory journal lives in `~/.memsearch/memory/` by default; with `MEMSEARCH_DIR` set
+> it is `$MEMSEARCH_DIR/memory/`.
