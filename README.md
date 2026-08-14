@@ -43,11 +43,13 @@
 | `summarizePlugin` | `""` | 如 `"codex"` 则用 `memsearch summarize` 摘要（需要 `[llm]` 配置）；空 = 原始文本 |
 | `indexAfterCapture` | `true` | 写入后重索引 |
 
-## 安装（已完成，供复现）
+## 安装
 
 ```bash
-# 1. 把插件加进 web profile（file: 链接到源码目录，便于迭代）
-dsh plugin --profile web add "file:/home/lchen/workspace/RDLens/scripts/dsh-memsearch"
+# 1. 安装插件（npm registry 或 GitHub 二选一）
+dsh plugin --profile web add dsh-memsearch
+# 或从 GitHub 源码安装：
+# dsh plugin --profile web add "git+https://github.com/clouwer/dsh-memsearch.git"
 
 # 2. 在 ~/.dsh/profiles/web/cordis.patch.yml 追加
 # - id: memsearch-automemory
@@ -58,9 +60,8 @@ dsh plugin --profile web add "file:/home/lchen/workspace/RDLens/scripts/dsh-mems
 # 3. 重启 dsh web（配置启动时合成）
 ```
 
-> 依赖解析说明：插件目录下的 `node_modules/@deepseek-ai/{cordis,schemastery}` 是指向
-> `~/.dsh/profiles/node_modules/@deepseek-ai/` 的符号链接（file: 安装按真实路径解析
-> 依赖）。若清理过 profile node_modules 导致加载失败，重建这两个链接即可。
+> 依赖说明：插件通过 peerDependencies 使用宿主 DSH 自带的 `@deepseek-ai/cordis` /
+> `@deepseek-ai/dsh-agent`，无需单独安装。
 
 ## 验证
 
