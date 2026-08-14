@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1 (2026-08-14)
+
+- 元数据更新：package.json 增加 `repository` / `homepage` / `bugs` 字段（npm 页面显示 GitHub 链接）
+- README 增加 npm/GitHub 徽章与链接
+
 ## 0.1.0 (2026-08-14)
 
 - 首个发布版本：DSH 自动语义记忆插件

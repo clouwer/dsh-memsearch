@@ -1,9 +1,17 @@
 {
   "name": "dsh-memsearch",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Automatic semantic memory for DeepSeek Harness (DSH) via memsearch — writes per-turn summaries to the memory journal and injects recall hints, mirroring the Codex/Claude Code memsearch plugins.",
   "type": "module",
   "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clouwer/dsh-memsearch.git"
+  },
+  "homepage": "https://github.com/clouwer/dsh-memsearch",
+  "bugs": {
+    "url": "https://github.com/clouwer/dsh-memsearch/issues"
+  },
   "files": [
     "lib"
   ],

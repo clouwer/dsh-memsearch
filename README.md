@@ -1,7 +1,13 @@
 # dsh-memsearch — DSH 自动语义记忆插件
 
+[![npm version](https://img.shields.io/npm/v/dsh-memsearch.svg)](https://www.npmjs.com/package/dsh-memsearch)
+[![GitHub](https://img.shields.io/badge/GitHub-clouwer%2Fdsh--memsearch-blue?logo=github)](https://github.com/clouwer/dsh-memsearch)
+
 让 DeepSeek Harness（DSH）像 Codex / Claude Code 的 memsearch 插件一样，**默认自动
 写入和提取** mmsearch 记忆。纯本地，默认不调用任何 LLM（离线可用）。
+
+- npm: <https://www.npmjs.com/package/dsh-memsearch>
+- GitHub: <https://github.com/clouwer/dsh-memsearch>
 
 ## 行为（对齐官方插件）
 
