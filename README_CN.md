@@ -51,10 +51,13 @@ dsh plugin --profile web add dsh-memsearch
 # dsh plugin --profile web add "git+https://github.com/clouwer/dsh-memsearch.git"
 
 # 2. 在 ~/.dsh/profiles/web/cordis.patch.yml 追加
-# - id: memsearch-automemory
-#   name: 'dsh-memsearch'
-#   config:
-#     enabled: true
+#    （注意：新增插件实例必须用 `insert` 列表——普通 `id:` 形式的 patch
+#    只能覆盖已存在的条目）
+# - insert:
+#     - id: memsearch-automemory
+#       name: 'dsh-memsearch'
+#       config:
+#         enabled: true
 
 # 3. 重启 dsh web（配置启动时合成）
 ```
