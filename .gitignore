@@ -1,0 +1,12 @@
+# dependencies & local artifacts
+node_modules/
+*.tgz
+*.log
+
+# test scratch dirs
+test/.test-*/
+
+# editor/OS
+.DS_Store
+.vscode/
+.idea/
