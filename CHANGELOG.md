@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.7 (2026-08-14)
+
+- 修复：turn-end 自动捕获的「用户问题 + agent 最终回复」中，assistant 回复经常被记成 `[DSH]: (no text)`
+  - 根因：DSH `assistant/message` 事件的载荷包在 `data.message` 包装层里，而插件按 `user/message` 的 `data` 直取方式读取，拿不到文本
+  - 修复：新增 `messageOf()` 统一解包，`extractExchange` 对两种事件形状都取到正确消息体；同时跳过无文本的 assistant 事件，避免空回复覆盖
+
 ## 0.1.6 (2026-08-14)
 
 - 修复：`createStatusMessage` 注入的会话状态消息缺少 `id`，导致会话日志在 DSH 持久化校验时失败（`session event ... lacks an identified message`），会话历史无法加载
