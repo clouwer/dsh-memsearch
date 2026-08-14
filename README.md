@@ -6,9 +6,6 @@
 让 DeepSeek Harness（DSH）像 Codex / Claude Code 的 memsearch 插件一样，**默认自动
 写入和提取** mmsearch 记忆。纯本地，默认不调用任何 LLM（离线可用）。
 
-- npm: <https://www.npmjs.com/package/dsh-memsearch>
-- GitHub: <https://github.com/clouwer/dsh-memsearch>
-
 ## 行为（对齐官方插件）
 
 | 时机 | 行为 |
