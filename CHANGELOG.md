@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5 (2026-08-14)
+
+- English README is now the default (`README.md`); Chinese version renamed to `README_CN.md`
+
 ## 0.1.4 (2026-08-14)
 
 - README：删除冗余的 npm/GitHub 纯文本链接（徽章已包含链接）
