@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 (2026-08-14)
+
+- 清理 README：移除本机路径（`file:` 安装示例），改用 npm/GitHub 安装方式
+
 ## 0.1.1 (2026-08-14)
 
 - 元数据更新：package.json 增加 `repository` / `homepage` / `bugs` 字段（npm 页面显示 GitHub 链接）
