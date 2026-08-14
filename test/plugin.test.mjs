@@ -94,6 +94,42 @@ try {
   assert.strictEqual(content2, content, "same turn must not be captured twice");
   console.log("OK  3) duplicate turn/end ignored");
 
+  // ---- 4) real DSH assistant message shape (data.message wrapper) ----
+  // DSH stores assistant messages as { turn, step, message: {...}, usage },
+  // with reasoning / tool-call / text content blocks.
+  const wrappedEvents = [
+    mkEvent("turn/start", { turn: 2 }, 10),
+    mkEvent("user/message", {
+      role: "user",
+      content: [{ type: "text", text: "DSH 插件如何自动保存记忆" }],
+      source: { kind: "user" },
+    }, 11),
+    mkEvent("step/start", { turn: 2, step: 1 }, 12),
+    mkEvent("assistant/message", {
+      turn: 2,
+      step: 1,
+      message: {
+        role: "assistant",
+        content: [
+          { type: "reasoning", text: "思考中..." },
+          { type: "tool-call", text: "" },
+          { type: "text", text: "插件监听 turn/end 事件，把问答写入当日记忆日志。" },
+        ],
+        source: { kind: "assistant" },
+      },
+      usage: {},
+    }, 13),
+    mkEvent("step/end", { turn: 2, step: 1 }, 14),
+    mkEvent("turn/end", { turn: 2 }, 15),
+  ];
+  fakeAgent.session.events = wrappedEvents;
+  sessHandler(fakeAgent.session, wrappedEvents[wrappedEvents.length - 1]);
+  await new Promise((r) => setTimeout(r, 1200));
+  const content3 = readFileSync(path.join(memoryDir, files[0]), "utf8");
+  assert.ok(content3.includes("监听 turn/end 事件"), "wrapped assistant message text should be captured");
+  assert.ok(!content3.includes("(no text)"), "no '(no text)' placeholders");
+  console.log("OK  4) real DSH assistant/message wrapper shape captured");
+
   console.log("\nALL TESTS PASSED");
 } finally {
   rmSync(tmp, { recursive: true, force: true });
