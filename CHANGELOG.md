@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.6 (2026-08-14)
+
+- 修复：`createStatusMessage` 注入的会话状态消息缺少 `id`，导致会话日志在 DSH 持久化校验时失败（`session event ... lacks an identified message`），会话历史无法加载
+  - 注入消息现在通过 `randomUUID()` 生成稳定 `id`，与 DSH 官方插件行为一致
+
 ## 0.1.5 (2026-08-14)
 
 - English README is now the default (`README.md`); Chinese version renamed to `README_CN.md`
