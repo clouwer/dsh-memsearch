@@ -15,7 +15,7 @@
 |---|---|
 | 会话开始（首个 step） | 后台跑一次 `memsearch index`；向会话注入一条插件来源的状态消息：memsearch 版本、embedding provider、记忆日志目录、历史记忆文件数 + 提示（需要用历史时用 memory-recall skill 检索） |
 | 每轮结束（`turn/end`） | 自动捕获本轮用户问题 + agent 最终回复，以紧凑格式追加到 `<memoryDir>/<YYYY-MM-DD>.md`，随后后台增量 `memsearch index`（去重：同一轮不会写两次） |
-| 检索 | 沿用官方设计：不自动塞上下文，由 agent 按需通过 memory-recall skill（或 MCP 桥的 `mcp__memsearch__search`）主动检索 |
+| 检索 | 沿用官方设计：不自动塞上下文，由 agent 按需通过 memsearch 官方的 memory-recall skill 主动检索 |
 
 ## 记忆日志格式
 
@@ -67,16 +67,12 @@ dsh plugin --profile web add dsh-memsearch
 
 ```bash
 # 单元测试（mock 会话，不依赖 DSH）
-cd scripts/dsh-memsearch && node test/plugin.test.mjs
+npm test
 
 # 重启 DSH 后：随便聊一轮，然后看当日日志
 tail -20 ~/.memsearch/memory/$(date +%Y-%m-%d).md
 memsearch stats          # chunk 数应随对话增长
 ```
 
-## 与 MCP 桥接的关系
-
-- 本插件：**自动**写入（每轮捕获）+ 会话开始提示（提取引导）。
-- `scripts/memsearch-mcp`（MCP 桥）：把 search/index/expand/remember 等变成 DSH
-  原生工具 `mcp__memsearch__*`，供 agent 主动检索/手动管理。
-- 两者互补；如果只想用其中一种，可在 cordis.patch.yml 里单独禁用。
+> 记忆日志默认在 `~/.memsearch/memory/`；设置了 `MEMSEARCH_DIR` 时在
+> `$MEMSEARCH_DIR/memory/`。
